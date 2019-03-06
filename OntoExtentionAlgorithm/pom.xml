@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.OntoExtentionAlgorithm</groupId>
+  <artifactId>OntoExtentionAlgorithm</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+    <dependencies>
+
+<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+<dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.16</version>
+</dependency>
+  
+<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-distribution -->
+<dependency>
+    <groupId>net.sourceforge.owlapi</groupId>
+    <artifactId>owlapi-distribution</artifactId>
+    <version>4.5.9</version>
+</dependency>
+			
+</dependencies>
+  <repositories>
+		<repository>
+			<id>BerkeleyBOP</id>
+			<name>Berkeley BOP maven repository</name>
+			<url>http://code.berkeleybop.org/maven/repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>BerkeleyBOPSnapshot</id>
+			<url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+</project>
