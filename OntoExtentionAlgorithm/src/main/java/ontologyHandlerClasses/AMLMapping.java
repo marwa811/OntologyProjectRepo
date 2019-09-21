@@ -1,14 +1,5 @@
 package ontologyHandlerClasses;
 
-import java.util.Vector;
-
-import org.apache.log4j.Logger;
-import org.semanticweb.owlapi.model.OWLException;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-
-import applicationClasses.MainClass;
-import aml.AML;
-
 //A class for AML Mappings//
 
 public class AMLMapping {
@@ -18,6 +9,19 @@ public class AMLMapping {
 	private String targetURI;
 	private String targetName;
 	private double similarityScore;
+	
+	public AMLMapping() 
+	{}
+	
+	public AMLMapping(int mappingId, String sourceURI, String sourceName, String targetURI, 
+			String targetName, double similarityScore) {
+		this.mappingId=mappingId;
+		this.sourceURI=sourceURI;
+		this.sourceName=sourceName;
+		this.targetURI=targetURI;
+		this.targetName=targetName;
+		this.similarityScore=similarityScore;
+	}
 	
 	public int getMappingId() {
 		return mappingId;
@@ -65,7 +69,6 @@ public class AMLMapping {
 	}
 
 	public void setSimilarityScore(String similarityScoreString) {
-		similarityScore=Double.parseDouble(similarityScoreString);
-		this.similarityScore = similarityScore;
+		this.similarityScore=Double.parseDouble(similarityScoreString);
 	}
 }

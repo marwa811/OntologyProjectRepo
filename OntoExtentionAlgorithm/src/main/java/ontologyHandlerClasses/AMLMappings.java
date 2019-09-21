@@ -1,6 +1,8 @@
 package ontologyHandlerClasses;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.model.OWLException;
@@ -9,8 +11,8 @@ import aml.AML;
 
 public class AMLMappings {
 	
-	private Vector<AMLMapping> mappings=new Vector<AMLMapping>();
-
+	private List<AMLMapping> mappings=new ArrayList<AMLMapping>();
+	
 	public void setMappings(String sourceFileName, String targetFileName) throws OWLException {
 		final Logger log = Logger.getLogger(AMLMappings.class);
 		
@@ -23,23 +25,22 @@ public class AMLMappings {
 		aml.matchAuto();
 		log.info("AML made the matching step between the two ontologies...");
 		
+		//If there exist AML mappings but them in AMLMappings object (arraylist)
 		if(aml.getAlignment().size() > 0) { 
+			int id=1;
+			System.out.println("AML mappings are: "+ aml.getAlignment().size());
 			for(int i=0; i<aml.getAlignment().size(); i++) {
-				AMLMapping mapping=new AMLMapping(); 
-				mapping.setMappingId(i+1);
 				String[] mappingitems=aml.getAlignment().get(i).toString().split("\t");
-				mapping.setSourceURI(mappingitems[0].trim());
-				mapping.setSourceName(mappingitems[1].trim());
-				mapping.setTargetURI(mappingitems[2].trim());
-				mapping.setTargetName(mappingitems[3].trim()); 
-				mapping.setSimilarityScore(mappingitems[4].trim());
-				mappings.add(mapping);
+				mappings.add(new AMLMapping(id,mappingitems[0].trim(),mappingitems[1].trim(),
+						mappingitems[2].trim(),mappingitems[3].trim(),
+						Double.parseDouble(mappingitems[4].trim())));
+				id++;
 				} 
 			  } else
-		  System.out.println("There are no mappings!!"); 
+		  System.out .println("There are no AML mappings!!"); 
 		}
 	
-	public Vector<AMLMapping> getMappings() {
+	public List<AMLMapping> getMappings() {
 		return mappings;
 	}
 	
@@ -49,14 +50,20 @@ public class AMLMappings {
 	}
 	
 	public void displayMappings() {
-		mappings=getMappings();
-		for(int i=0; i<mappings.size(); i++) {
+		//mappings=getMappings();
+		Iterator<AMLMapping> mappingIterator = mappings.iterator();
+			while (mappingIterator.hasNext()) {
+				AMLMapping mapping = mappingIterator.next();			
+				System.out.println(mapping.getMappingId()+"  "+mapping.getSourceName()+"  "+
+					mapping.getSourceURI()+"  "+mapping.getTargetName()+"  "+
+					mapping.getTargetURI()+"  "+mapping.getSimilarityScore());
+		}
+		/*for(int i=0; i<mappings.size(); i++) {
 			System.out.println(mappings.get(i).getMappingId()+"  "+mappings.get(i).getSourceName()+"  "+
 							mappings.get(i).getSourceURI()+"  "+mappings.get(i).getTargetName()+"  "+
 							mappings.get(i).getTargetURI()+"  "+mappings.get(i).getSimilarityScore());
-		}
-			
-	}
+		*/
+		}	
 	
 	public int getSizeOfMappings() {
 		return mappings.size();

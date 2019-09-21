@@ -60,6 +60,7 @@ public class ExtractOntologyInformation {
 		getDisjointClasses(ontology, c);
 		getDirectSuperClass(ontology, c);
 		getAllSuperClasses(ontology, c);
+		getSiblingClasses(ontology,c);
 		getObjectProperties(ontology, c);
 		getDataProperties(ontology, c);
 		getAnnotationProperties(ontology, c);
@@ -153,6 +154,32 @@ public class ExtractOntologyInformation {
 			}
 		}
 		return disjointClasses;
+	}
+	
+	/**
+	 * A method to get sibling classes for a given OWLClass.
+	 *
+	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @return Set of subclasses
+	 */
+	public static Set<OWLClass> getSiblingClasses(OWLOntology ontology, OWLClass c) throws IOException {	
+		StructuralReasonerFactory factory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = factory.createReasoner(ontology);
+		reasoner.precomputeInferences();
+		//Set<OWLClass> superclasses = new HashSet<OWLClass>();
+		Set<OWLClass> siblingclasses= new HashSet<OWLClass>();
+		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
+		for (OWLClass superclass : nodeclasses.getFlattened()) {
+			if (!superclass.isAnonymous() && !superclass.equals(c)) {
+				NodeSet<OWLClass> siblings = reasoner.getSubClasses((OWLClassExpression) superclass, true);
+				siblingclasses = siblings.getFlattened();
+				for (OWLClass sibling : siblingclasses) {
+					if (!sibling.isAnonymous() && !sibling.equals(c)) 
+						siblingclasses.add(sibling);
+					}
+				}
+			}
+		return siblingclasses;
 	}
 
 	/**
@@ -346,10 +373,9 @@ public class ExtractOntologyInformation {
 		for (OWLClass superclass : nodeclasses.getFlattened()) {
 			if (!superclass.isAnonymous() && !superclass.equals(c))
 				superclasses.add(superclass);
-			System.out.println("SuperClass: " + getClassLabel(ontology, superclass));
+			//System.out.println("SuperClass: " + getClassLabel(ontology, superclass));
 		}
 		return superclasses;
-
 	}
 
 	/**
