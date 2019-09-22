@@ -1,11 +1,13 @@
 package ontologyHandlerClasses;
+import java.io.File;
 import java.io.IOException;
-
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
@@ -18,12 +20,16 @@ import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDataPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLDisjointClassesAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
+import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyID;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.Node;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -33,7 +39,7 @@ import org.semanticweb.owlapi.search.EntitySearcher;
 import org.apache.log4j.Logger;
 
 /**
- * ExtractOntologyInformation.java 
+ * OWLOntologyInformation.java 
  * Purpose: Get a class's semantic information(its equivalent classes, 
  * its disjoint classes, its super and subclasses, its related properties, etc )
  * 
@@ -41,49 +47,107 @@ import org.apache.log4j.Logger;
  * @version 0.1 7/12/2018
  */
 
-public class ExtractOntologyInformation {
-	final static Logger log = Logger.getLogger(ExtractOntologyInformation.class);
+public class OWLOntologyInformation {
+	final static Logger log = Logger.getLogger(OWLOntologyInformation.class);
+	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+	OWLOntology onto;
+	String OntoID;
+	OWLDataFactory factory = manager.getOWLDataFactory();
+
+	
+	/**
+	 * A method to load an ontology using its file name. 
+	 *
+	 * @param A string for the file name.
+	 * @return OWLOntology object for the ontology.
+	 */
+	public void laodOntology(String filename) throws OWLOntologyCreationException, OWLException {
+		try {
+			File file = new File(filename);
+		//	manager.setSilentMissingImportsHandling(true);
+			onto = manager.loadOntologyFromOntologyDocument(file);			
+			//OWLOntologyID ontologyIRI = onto.getOntologyID();
+			//OntoID = ontologyIRI.getOntologyIRI().toString();
+			System.out.println(" Load ontology sucessfully!");
+			IRI documentIRI = manager.getOntologyDocumentIRI(onto);
+			System.out.println("The path comes from " + documentIRI);
+			System.out.println("The OntoID is " + OntoID);
+			log.info("Loading " + filename + "...");
+			} 
+		catch (OWLOntologyCreationException e) {
+			log.error("Error in loading the ontology: " + e);
+		}
+	}
+	
+	public OWLOntology getOntology() {
+		return onto;
+	}
+
+	public void setOntology(OWLOntology onto) {
+		this.onto=onto;
+	}
+	/**
+	 * A method to get the all imported ontologies for a given OWLOntology.
+	 *
+	 * @param An input OWLOntology.
+	 * @return A Set of imported OWLOntologies.
+	 */
+
+	public Set<OWLOntology> getImportedOntologies() {
+		Set<OWLOntology> allOntologies = new HashSet<OWLOntology>();
+		allOntologies = onto.getOWLOntologyManager().getOntologies();
+		return allOntologies;
+	}
+	
+	
+	/**
+	 * A method to get OWLClass from an IRI string
+	 *
+	 * @param The IRI for the class (converted later to an OWLClass object)
+	 * return OWLClass
+	 */
+	public OWLClass getOWLClassfromIRI(String iri) {
+		OWLClass c= factory.getOWLClass(IRI.create(iri));
+		return c;
+	}
 
 	/**
 	 * A method to get all semantic information for a given class (call other
 	 * methods in the class).
 	 *
-	 * @param The OWLOntology (the class's ontology). The IRI for the class
-	 *            (converted later to an OWLClass object)
+	 * @param The IRI for the class (converted later to an OWLClass object)
 	 */
-	public static void getClassSemanticInformation(OWLOntology ontology, String classiri) throws Exception {
-		OWLDataFactory factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-		OWLClass c = factory.getOWLClass(IRI.create(classiri));
+	public void getClassSemanticInformation(String classIRI) throws Exception {
+		OWLDataFactory factory = onto.getOWLOntologyManager().getOWLDataFactory();
+		OWLClass c = factory.getOWLClass(IRI.create(classIRI));
 
-		getEquavilantClasses(ontology, c);
-		getSubClasses(ontology, c);
-		getDisjointClasses(ontology, c);
-		getDirectSuperClass(ontology, c);
-		getAllSuperClasses(ontology, c);
-		getSiblingClasses(ontology,c);
-		getObjectProperties(ontology, c);
-		getDataProperties(ontology, c);
-		getAnnotationProperties(ontology, c);
-		getInferedOWLDisjointnessAxioms(ontology, c);
-		getInferedOWLEquivalentAxioms(ontology, c);
+		getEquavilantClasses(c);
+		getSubClasses(c);
+		getDisjointClasses(c);
+		getDirectSuperClass(c);
+		getAllSuperClasses(c);
+		getSiblingClasses(c);
+		getObjectProperties(c);
+		getDataProperties(c);
+		getAnnotationProperties(c);
+		getInferedOWLDisjointnessAxioms(c);
+		getInferedOWLEquivalentAxioms(c);
 	}
 
 	/**
 	 * A method to get equivalent classes for a given OWLClass.
 	 *
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of equivalent OWLClasses
 	 */
-	public static Set<OWLClass> getEquavilantClasses(OWLOntology ontology, OWLClass c) throws IOException {
+	public Set<OWLClass> getEquavilantClasses(OWLClass c) throws IOException {
 		Set<OWLClass> finalEquivalntClasses = new HashSet<OWLClass>();
-		Set<OWLEquivalentClassesAxiom> equavilantClasses = ontology.getEquivalentClassesAxioms(c);
+		Set<OWLEquivalentClassesAxiom> equavilantClasses = onto.getEquivalentClassesAxioms(c);
 		if (equavilantClasses.size() > 0) {
 			for (OWLEquivalentClassesAxiom equivalentAxiom : equavilantClasses) {
 				for (OWLClass cls : equivalentAxiom.getClassesInSignature()) {
 					if (!cls.equals(c)) {
 						finalEquivalntClasses.add(cls);
-						// System.out.println("Equavilent class: " +
-						// OntologyParsing.getClassLabel(ontology, cls));
 					}
 				}
 			}
@@ -97,9 +161,9 @@ public class ExtractOntologyInformation {
 	 * @param The OWLOntology (the class's ontology). The OWLClass.
 	 * @return Set of equivalent OWLClasses
 	 */
-	public static Set<OWLClass> getInferedOWLEquivalentAxioms(OWLOntology ontology, OWLClass c) {
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getInferedOWLEquivalentAxioms(OWLClass c) {
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
 		Set<OWLClass> equivalentClasses = new HashSet<OWLClass>();
@@ -117,16 +181,16 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get disjoint classes for a given OWLClass.
 	 *
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of OWLDisjointClassesAxiom(s)
 	 */
 
-	public static Set<OWLDisjointClassesAxiom> getDisjointClasses(OWLOntology ontology, OWLClass c) throws IOException {
-		Set<OWLDisjointClassesAxiom> disjointClasses = ontology.getDisjointClassesAxioms(c);
+	public Set<OWLDisjointClassesAxiom> getDisjointClasses(OWLClass c) throws IOException {
+		Set<OWLDisjointClassesAxiom> disjointClasses = onto.getDisjointClassesAxioms(c);
 		for (OWLDisjointClassesAxiom disjointAxiom : disjointClasses) {
 			for (OWLClass class1 : disjointAxiom.getClassesInSignature()) {
 				if (!class1.equals(c))
-					System.out.println("Disjoint class: " + getClassLabel(ontology, class1));
+					System.out.println("Disjoint class: " + getClassLabel(class1));
 			}
 		}
 		return disjointClasses;
@@ -135,13 +199,12 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get disjoint classes for a given OWLClass using a reasoner.
 	 *
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of disjoint OWLClasses
 	 */
-	public static Set<OWLClass> getInferedOWLDisjointnessAxioms(OWLOntology ontology, OWLClass c) {
-
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getInferedOWLDisjointnessAxioms(OWLClass c) {
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> disjointClasses = new HashSet<OWLClass>();
 
@@ -159,14 +222,13 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get sibling classes for a given OWLClass.
 	 *
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of subclasses
 	 */
-	public static Set<OWLClass> getSiblingClasses(OWLOntology ontology, OWLClass c) throws IOException {	
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getSiblingClasses(OWLClass c) throws IOException {	
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
-		//Set<OWLClass> superclasses = new HashSet<OWLClass>();
 		Set<OWLClass> siblingclasses= new HashSet<OWLClass>();
 		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
 		for (OWLClass superclass : nodeclasses.getFlattened()) {
@@ -185,51 +247,35 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get subclasses for a given OWLClass.
 	 *
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of subclasses
 	 */
-	public static Set<OWLClass> getSubClasses(OWLOntology ontology, OWLClass c) throws IOException {	
-	StructuralReasonerFactory factory = new StructuralReasonerFactory();
-	OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getSubClasses(OWLClass c) throws IOException {	
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 	reasoner.precomputeInferences();
 	Set<OWLClass> subClasses = new HashSet<OWLClass>();
 	NodeSet<OWLClass> nodeclasses = reasoner.getSubClasses((OWLClassExpression) c, true);
 	for (OWLClass subclass : nodeclasses.getFlattened()) {
 		if (!subclass.isAnonymous() && !subclass.equals(c))
 			subClasses.add(subclass);
-		// System.out.println("SubClass: " + OntologyParsing.getClassLabel(ontology,
-		// subclass));
-	}
+		}
 	return subClasses;
 	}
 	
-	/*public static Set<OWLClass> getSubClasses(OWLOntology ontology, OWLClass c) throws IOException {
-		Iterator<OWLClassExpression> iterator = EntitySearcher.getSubClasses(c, ontology.getImportsClosure().stream()).iterator();
-		OWLClass toClass = null;
-		Set<OWLClass> subClasses = new HashSet<>();
-		while (iterator.hasNext()) {
-			final OWLClassExpression classExp = iterator.next();
-			toClass = classExp.asOWLClass();
-			subClasses.add(toClass);
-			// System.out.println("Subclass: " + OntologyParsing.getClassLabel(ontology,
-			// (OWLClass) classExp));
-		}
-		return subClasses;
-	}*/
-
 	/**
 	 * A method to get object properties for a given OWLClass. Here it passes
 	 * through all OWLObjectPropertyDomainAxioms to test if the given class is
 	 * "Domain" or "Range", and if so, include this object property in the result
 	 * set
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of object properties
 	 */
 	
-	public static Set<OWLObjectProperty> getObjectProperties(OWLOntology ontology, OWLClass c) {
+	public Set<OWLObjectProperty> getObjectProperties(OWLClass c) {
 		Set<OWLObjectProperty> objectProperties = new HashSet<OWLObjectProperty>();
-		Set<OWLOntology> allOntologies = ontology.getImportsClosure();
+		Set<OWLOntology> allOntologies = onto.getImportsClosure();
 		for (OWLOntology o : allOntologies) {
 			for (OWLObjectPropertyDomainAxiom dop : o.getAxioms(AxiomType.OBJECT_PROPERTY_DOMAIN)) {
 				if (dop.getDomain().equals(c)) {
@@ -256,13 +302,13 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get Domain class(es) for a given OWLObjectProperty using a reasoner. 
 	 * 
-	 * @param The OWLOntology, and the OWLObjectProperty. 
+	 * @param The OWLObjectProperty. 
 	 * @return Set of Domain OWLClass(es)
 	 */
-	public static Set<OWLClass> getDomainClassForObjectProperty(OWLOntology ontology, OWLObjectProperty op) {
+	public Set<OWLClass> getDomainClassForObjectProperty(OWLObjectProperty op) {
 		Set <OWLClass> domainClasses=new HashSet<OWLClass>();
 		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+		OWLReasoner reasoner = factory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
 		NodeSet<OWLClass> tempClasses=reasoner.getObjectPropertyDomains(op, true);
@@ -276,13 +322,13 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get Range class(es) for a given OWLObjectProperty using a reasoner. 
 	 * 
-	 * @param The OWLOntology, and the OWLObjectProperty. 
+	 * @param The OWLObjectProperty. 
 	 * @return Set of Range OWLClass(es)
 	 */
-	public static Set<OWLClass> getRangeClassForObjectProperty(OWLOntology ontology, OWLObjectProperty op) {
+	public Set<OWLClass> getRangeClassForObjectProperty(OWLObjectProperty op) {
 		Set <OWLClass> rangeClasses=new HashSet<OWLClass>();
 		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+		OWLReasoner reasoner = factory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
 		NodeSet<OWLClass> tempClasses=reasoner.getObjectPropertyRanges(op, true);
@@ -300,12 +346,12 @@ public class ExtractOntologyInformation {
 	 * @param The OWLOntology, and the OWLObjectProperty. 
 	 * @return Set of all related OWLClass(es)
 	 */
-	public static Set<OWLClass> getClassesRelatedToObjectProperty(OWLOntology ontology, OWLObjectProperty op) {
+	public Set<OWLClass> getClassesRelatedToObjectProperty(OWLObjectProperty op) {
 		Set <OWLClass> relatedClasses=new HashSet<OWLClass>();
-		for (OWLClass c : getDomainClassForObjectProperty(ontology,op))		
+		for (OWLClass c : getDomainClassForObjectProperty(op))		
 			relatedClasses.add(c);
 		
-		for (OWLClass c1 : getRangeClassForObjectProperty(ontology,op))		
+		for (OWLClass c1 : getRangeClassForObjectProperty(op))		
 			relatedClasses.add(c1);
 		return relatedClasses;
 	}
@@ -315,12 +361,12 @@ public class ExtractOntologyInformation {
 	 * all OWLDataPropertyDomainAxioms to test if the given class is "Domain", and
 	 * if so, include this data property in the result set
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of data properties
 	 */
-	public static Set<OWLDataProperty> getDataProperties(OWLOntology ontology, OWLClass c) {
+	public Set<OWLDataProperty> getDataProperties(OWLClass c) {
 		Set<OWLDataProperty> dataProperties = new HashSet<OWLDataProperty>();
-		Set<OWLOntology> allOntologies = ontology.getImportsClosure();
+		Set<OWLOntology> allOntologies = onto.getImportsClosure();
 		for (OWLOntology o : allOntologies) {
 			for (OWLDataPropertyDomainAxiom dp : o.getAxioms(AxiomType.DATA_PROPERTY_DOMAIN)) {
 				if (dp.getDomain().equals(c)) {
@@ -337,13 +383,12 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get Direct super classes for a given OWLClass.
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of direct superclasses.
 	 */
-	public static Set<OWLClass> getDirectSuperClass(OWLOntology ontology, OWLClass c) throws IOException {
-
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getDirectSuperClass(OWLClass c) throws IOException {
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> superclasses = new HashSet<OWLClass>();
 		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
@@ -360,13 +405,12 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get all super classes (to the Thing class) for a given OWLClass.
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of all superclasses.
 	 */
-	public static Set<OWLClass> getAllSuperClasses(OWLOntology ontology, OWLClass c) throws IOException {
-
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(ontology);
+	public Set<OWLClass> getAllSuperClasses(OWLClass c) throws IOException {
+		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> superclasses = new HashSet<OWLClass>();
 		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, false);
@@ -381,11 +425,11 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get annotation properties for a given OWLClass.
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return Set of OWLAnnotations.
 	 */
-	public static Iterator<OWLAnnotation> getAnnotationProperties(OWLOntology ontology, OWLClass c) {
-		Iterator<OWLAnnotation> iterator = EntitySearcher.getAnnotationObjects(c, ontology.getImportsClosure())
+	public Iterator<OWLAnnotation> getAnnotationProperties(OWLClass c) {
+		Iterator<OWLAnnotation> iterator = EntitySearcher.getAnnotationObjects(c, onto.getImportsClosure())
 				.iterator();
 		while (iterator.hasNext()) {
 			final OWLAnnotation annotation = iterator.next();
@@ -398,12 +442,12 @@ public class ExtractOntologyInformation {
 	/**
 	 * A method to get RDFS:label for a given OWLClass.
 	 * 
-	 * @param The OWLOntology (the class's ontology). The OWLClass.
+	 * @param The OWLClass.
 	 * @return The class label.
 	 */
-	public static String getClassLabel(OWLOntology classOntology, OWLClass owlclass) throws IOException {
+	public String getClassLabel(OWLClass owlclass) throws IOException {
 		// OWLEntity.getIRI().getShortForm();
-		Iterator<OWLAnnotation> iterator = EntitySearcher.getAnnotations(owlclass, classOntology).iterator();
+		Iterator<OWLAnnotation> iterator = EntitySearcher.getAnnotations(owlclass, onto).iterator();
 		while (iterator.hasNext()) {
 			final OWLAnnotation an = iterator.next();
 			if (an.getProperty().isLabel()) {
@@ -435,12 +479,12 @@ public class ExtractOntologyInformation {
 	 * @param The OWLOntology (the class's ontology).
 	 */
 	// Print all classes & their labels
-	public static void printOntologyClasses(OWLOntology ontology) throws IOException {
+	public void printOntologyClasses(OWLOntology ontology) throws IOException {
 		int i = 0;
 		Set<OWLClass> ontologyclasses = ontology.getClassesInSignature();
 		for (OWLClass c : ontologyclasses) {
 			i++;
-			System.out.println("Class " + i + " : " + c.toStringID() + "  " + "Label: " + getClassLabel(ontology, c));
+			System.out.println("Class " + i + " : " + c.toStringID() + "  " + "Label: " + getClassLabel(c));
 		}
 	}
 }
