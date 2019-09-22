@@ -13,7 +13,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 
 import ontologyHandlerClasses.AMLMapping;
 import ontologyHandlerClasses.AMLMappings;
-import ontologyHandlerClasses.LoadOntology;
+import ontologyHandlerClasses.OWLOntologyInformation;
 import ontologyHandlerClasses.OntologyMatchingAlgorithm;
 
 
@@ -30,61 +30,47 @@ public class MainClass {
 	public static void main(String[] args) throws Exception {
 
 		log.info("Your application is strating:");
-
-		// Ask the user to enter the name of the source (core) ontology, then load it
-		System.out.println("Please enter the name of the core ontology:");
-		// Scanner sc=new Scanner(System.in);
-		// String filename1=sc.next();
-		String filename1 = "conference/cmt.owl";
-		OWLOntology sourceOntology = LoadOntology.laodOntologyUsingFileName(filename1);
-
-		// Ask the user to enter the name of the target ontology(to be used in extending
-		// the core ontology)
-		// Then it loads it
-		System.out.println("Please enter the name of the ontology to be used in the extension:");
-		// String filename2=sc.next();
-		String filename2 = "conference/Conference.owl";
-		OWLOntology targetOntology = LoadOntology.laodOntologyUsingFileName(filename2);
+		
+		String filename1 = "biodiv/flopo.owl";
+		String filename2 = "biodiv/pto.owl";
+		
+		OWLOntologyInformation sourceOntology=new OWLOntologyInformation();
+		OWLOntologyInformation targetOntology=new OWLOntologyInformation();
+		
+		sourceOntology.laodOntology(filename1);
+		targetOntology.laodOntology(filename2);
 		
 		/**
 		 * Call the AML MyOntologyMatchingAlgorithm To get pairs of matched classes from the source and
 		 * target ontologies Result returns in list of mappings (classes or object
 		 * properties) using aml.getAlignment() AML Mapping include: <sourceURI TargetURI sim_score>
 		 */
-
-		String sourcePath = filename1;
-		String targetPath = filename2;
 		AMLMappings mappings=new AMLMappings();
-		mappings.setMappings(sourcePath, targetPath);
+		mappings.setMappings(filename1, filename2);
 		
-		OWLDataFactory sourceFactory = sourceOntology.getOWLOntologyManager().getOWLDataFactory();
-		OWLDataFactory targetFactory = targetOntology.getOWLOntologyManager().getOWLDataFactory();
 
 		// for each AML Mapping object get the OWLClass of the source an target
 		// ontologies (to be used in the algorithm)
 		// convert the textual IRI to OWLClass
 		log.info("The algorithm begins...");
-		//int i=0;
+		OntologyMatchingAlgorithm testCase= new OntologyMatchingAlgorithm();
+		
 		if(mappings.getSizeOfMappings() > 0) {		
 			Iterator<AMLMapping> mappingIterator = mappings.getMappings().iterator();
 			while (mappingIterator.hasNext()) {
 				AMLMapping mapping = mappingIterator.next();
-				OWLClass sourceClass = sourceFactory.getOWLClass(IRI.create(mapping.getSourceURI()));
-				OWLClass targetClass = targetFactory.getOWLClass(IRI.create(mapping.getTargetURI()));
+				OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(mapping.getSourceURI());
+				OWLClass targetClass = targetOntology.getOWLClassfromIRI(mapping.getTargetURI());
 				System.out.println(mapping.getMappingId() + " " + mapping.getSourceURI() + "     " + mapping.getTargetURI());
 				// test if the two classes have common "semantic information"
-				try {
-					OntologyMatchingAlgorithm.getSimilarclasses(sourceOntology, sourceClass, targetOntology, targetClass, mappings.getMappings());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				testCase.getSimilarclasses(sourceOntology, sourceClass, targetOntology, targetClass, mappings.getMappings());
+
 				System.out.println();
 			}
 			
 			// the function returns the set of classes (in the source ontology) that can be
 			// extended using the target ontology
-			OntologyMatchingAlgorithm.printSemanticSimilarClasses(sourceOntology);
+			testCase.printSemanticSimilarClasses(sourceOntology);
 		} else
 			System.out.println("There are no mappings!!");
 	}
