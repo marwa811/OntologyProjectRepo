@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.apache.log4j.Logger;
 
@@ -22,25 +24,33 @@ import org.apache.log4j.Logger;
 public class LoadOntology {
 
 	final static Logger log = Logger.getLogger(LoadOntology.class);
+	OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+	OWLOntology onto;
+	String OntoID;
 
 	/**
-	 * A method to load an ontology using its file name.
+	 * A method to load an ontology using its file name. 
 	 *
 	 * @param A string for the file name.
 	 * @return OWLOntology object for the ontology.
 	 */
-	public static OWLOntology laodOntologyUsingFileName(String filename)
-			throws OWLOntologyCreationException, OWLException {
-		OWLOntology ontology = null;
+	public void laodOntologyUsingFileName(String filename) throws OWLOntologyCreationException, OWLException {
+		//OWLOntology ontology = null;
 		try {
-			OWLOntologyManager man = OWLManager.createOWLOntologyManager();
 			File file = new File(filename);
-			ontology = man.loadOntologyFromOntologyDocument(file);
+			//manager.setSilentMissingImportsHandling(true);
+			onto = manager.loadOntologyFromOntologyDocument(file);			
+			OWLOntologyID ontologyIRI = onto.getOntologyID();
+			OntoID = ontologyIRI.getOntologyIRI().toString();
+			System.out.println(OntoID +" Load ontology sucessfully!");
+			IRI documentIRI = manager.getOntologyDocumentIRI(onto);
+			System.out.println("The path comes from " + documentIRI);
+			System.out.println("The OntoID is " + OntoID);
 			log.info("Loading " + filename + "...");
-		} catch (OWLOntologyCreationException e) {
+			} 
+		catch (OWLOntologyCreationException e) {
 			log.error("Error in loading the ontology: " + e);
 		}
-		return ontology;
 	}
 
 	/**

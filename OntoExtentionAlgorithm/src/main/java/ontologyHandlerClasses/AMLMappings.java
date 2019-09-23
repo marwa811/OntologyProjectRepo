@@ -2,7 +2,6 @@ package ontologyHandlerClasses;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.model.OWLException;
@@ -11,7 +10,10 @@ import aml.AML;
 
 public class AMLMappings {
 	
-	private List<AMLMapping> mappings=new ArrayList<AMLMapping>();
+	public AMLMappings() {
+	}
+
+	private ArrayList<AMLMapping> mappings=new ArrayList<AMLMapping>();
 	
 	public void setMappings(String sourceFileName, String targetFileName) throws OWLException {
 		final Logger log = Logger.getLogger(AMLMappings.class);
@@ -40,7 +42,7 @@ public class AMLMappings {
 		  System.out .println("There are no AML mappings!!"); 
 		}
 	
-	public List<AMLMapping> getMappings() {
+	public ArrayList<AMLMapping> getMappings() {
 		return mappings;
 	}
 	
@@ -50,22 +52,33 @@ public class AMLMappings {
 	}
 	
 	public void displayMappings() {
-		//mappings=getMappings();
 		Iterator<AMLMapping> mappingIterator = mappings.iterator();
 			while (mappingIterator.hasNext()) {
 				AMLMapping mapping = mappingIterator.next();			
-				System.out.println(mapping.getMappingId()+"  "+mapping.getSourceName()+"  "+
+				System.out.println("Final mapping: "+mapping.getMappingId()+"  "+mapping.getSourceName()+"  "+
 					mapping.getSourceURI()+"  "+mapping.getTargetName()+"  "+
 					mapping.getTargetURI()+"  "+mapping.getSimilarityScore());
-		}
-		/*for(int i=0; i<mappings.size(); i++) {
-			System.out.println(mappings.get(i).getMappingId()+"  "+mappings.get(i).getSourceName()+"  "+
-							mappings.get(i).getSourceURI()+"  "+mappings.get(i).getTargetName()+"  "+
-							mappings.get(i).getTargetURI()+"  "+mappings.get(i).getSimilarityScore());
-		*/
+			}
 		}	
 	
 	public int getSizeOfMappings() {
 		return mappings.size();
+	}
+
+	public void add(AMLMapping m) {
+		// TODO Auto-generated method stub
+		if (!mappings.contains(m))
+			mappings.add(m);
+	}
+	
+	public ArrayList<String> getMappingsAsRef() {
+		ArrayList<String> newMappings=new ArrayList<>();
+		Iterator<AMLMapping> mappingIterator = mappings.iterator();
+		while (mappingIterator.hasNext()) {
+			AMLMapping mapping = mappingIterator.next();			
+			newMappings.add(mapping.getSourceURI().substring(mapping.getSourceURI().indexOf('#')+1)
+					+","+mapping.getTargetURI().substring(mapping.getTargetURI().indexOf('#')+1));
+		}
+		return newMappings;
 	}
 }

@@ -71,4 +71,10 @@ public class AMLMapping {
 	public void setSimilarityScore(String similarityScoreString) {
 		this.similarityScore=Double.parseDouble(similarityScoreString);
 	}
+	
+	public void dispalyMApping(AMLMapping mapping) {
+		System.out.println("This mapping: "+mapping.getMappingId()+"  "+mapping.getSourceName()+"  "+
+				mapping.getSourceURI()+"  "+mapping.getTargetName()+"  "+
+				mapping.getTargetURI()+"  "+mapping.getSimilarityScore());
+	}
 }

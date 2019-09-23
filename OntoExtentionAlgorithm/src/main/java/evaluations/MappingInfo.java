@@ -83,8 +83,8 @@ public class MappingInfo {
 							
 				if(Relation.equals("&gt;"))
 					continue;
-				references.add(entity1+","+entity2+","+Relation);
-				//references.add(entity1+" = "+entity2);
+				//references.add(entity1+","+entity2+","+Relation);
+				references.add(entity1+","+entity2);
 			}
 			return references;
 	}
@@ -124,7 +124,8 @@ public class MappingInfo {
 				
 				if(Relation.equals("&gt;"))
 					continue;
-					references.add(entity1+","+entity2+","+Relation);
+					//references.add(entity1+","+entity2+","+Relation);
+					references.add(entity1+","+entity2);
 			}
 			return references;
 	}

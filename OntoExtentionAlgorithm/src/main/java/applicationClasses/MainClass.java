@@ -1,16 +1,12 @@
 package applicationClasses;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLOntology;
 
+import evaluations.Evaluations;
+import evaluations.MappingInfo;
 import ontologyHandlerClasses.AMLMapping;
 import ontologyHandlerClasses.AMLMappings;
 import ontologyHandlerClasses.OWLOntologyInformation;
@@ -31,8 +27,12 @@ public class MainClass {
 
 		log.info("Your application is strating:");
 		
-		String filename1 = "biodiv/flopo.owl";
-		String filename2 = "biodiv/pto.owl";
+		String filename1 = "conference/cmt.owl";
+		String filename2 = "conference/conference.owl";
+		String refPath="referenceAlignment/cmt-conference.rdf";
+		
+		//String filename1 = "biodiv/envo.owl";
+		//String filename2 = "biodiv/sweet.owl";
 		
 		OWLOntologyInformation sourceOntology=new OWLOntologyInformation();
 		OWLOntologyInformation targetOntology=new OWLOntologyInformation();
@@ -52,26 +52,49 @@ public class MainClass {
 		// for each AML Mapping object get the OWLClass of the source an target
 		// ontologies (to be used in the algorithm)
 		// convert the textual IRI to OWLClass
+		
 		log.info("The algorithm begins...");
 		OntologyMatchingAlgorithm testCase= new OntologyMatchingAlgorithm();
 		
+		//For each Mapping check to include it or not in our final mappings
 		if(mappings.getSizeOfMappings() > 0) {		
 			Iterator<AMLMapping> mappingIterator = mappings.getMappings().iterator();
 			while (mappingIterator.hasNext()) {
 				AMLMapping mapping = mappingIterator.next();
-				OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(mapping.getSourceURI());
-				OWLClass targetClass = targetOntology.getOWLClassfromIRI(mapping.getTargetURI());
 				System.out.println(mapping.getMappingId() + " " + mapping.getSourceURI() + "     " + mapping.getTargetURI());
-				// test if the two classes have common "semantic information"
-				testCase.getSimilarclasses(sourceOntology, sourceClass, targetOntology, targetClass, mappings.getMappings());
-
+				testCase.getSimilarclasses(sourceOntology,targetOntology, mapping, mappings.getMappings());
 				System.out.println();
 			}
-			
-			// the function returns the set of classes (in the source ontology) that can be
-			// extended using the target ontology
-			testCase.printSemanticSimilarClasses(sourceOntology);
-		} else
+			testCase.displayFinalMappings();
+		} 
+		else
 			System.out.println("There are no mappings!!");
+		
+		System.out.println("------------------");
+		
+		MappingInfo references=new MappingInfo(refPath);
+		ArrayList<String> refMappings=references.getMappings();
+		Iterator<String> listIterator = refMappings.iterator();
+		while (listIterator.hasNext()) {
+			String ref = listIterator.next();
+			System.out.println(ref);
+		}
+		
+		System.out.println("------------------");
+		
+		ArrayList<String> myMappings=testCase.getFinalMappings().getMappingsAsRef();
+		Iterator<String> listIterator1 = myMappings.iterator();
+		while (listIterator1.hasNext()) {
+			String map = listIterator1.next();
+			System.out.println(map);
+		}
+		
+		System.out.println("------------------");
+		
+		Evaluations evaluation=new Evaluations(myMappings,refMappings);
+		System.out.println("Precision= "+evaluation.getPrecision());
+		System.out.println("Recall= "+evaluation.getRecall());
+		System.out.println("FMeasure= "+evaluation.getFMeasure());
+
 	}
 }
