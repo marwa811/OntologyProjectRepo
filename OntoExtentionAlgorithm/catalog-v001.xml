@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://ecoinformatics.org/oboe/oboe.1.0/oboe-core.owl" uri="oboe-core.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://mged.sourceforge.net/ontologies/MGEDOntology.owl" uri="MGEDOntology.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.bioontology.org/ontology/phenX/" uri="phenXOnto_v1_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.dataone.org/odo/ECSO_" uri="d1-ECSO.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.obolibrary.org/obo/agro-edit.owl" uri="agro.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.obolibrary.org/obo/envo.owl" uri="envo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.obolibrary.org/obo/obi.owl" uri="obi.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://purl.obolibrary.org/obo/uo.owl" uri="uo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://rs.tdwg.org/ontology/voc/Specimen" uri="specimen.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://scai.fraunhofer.de/CSEO" uri="Exo-CSEOv1.2_BFO_FINAL_merged_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://sweet.jpl.nasa.gov/2.3/matrElement.owl#" uri="matrElement.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://sweet.jpl.nasa.gov/2.3/matrOrganicCompound.owl" uri="matrOrganicCompound.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://www.limics.fr/ontologies/menelastop" uri="Menelas-Top-20180126.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://www.owl-ontologies.com/BiodiversityOntologyFull.owl" uri="Ontobio_01072013.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://www.w3.org/2002/07/owl" uri="MassSpectrometryOnt.xrdf"/>
+        <uri id="Automatically generated entry, Timestamp=1553466809971" name="http://www.w3.org/ns/ssn/" uri="ssn.owl"/>
+    </group>
+</catalog>
