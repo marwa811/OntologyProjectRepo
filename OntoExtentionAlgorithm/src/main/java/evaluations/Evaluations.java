@@ -13,7 +13,6 @@ public class Evaluations {
 	public Evaluations(ArrayList<String> mapping, ArrayList<String> reference) {
 		// Mapping correct = reference.getIntersection(mapping); 
 		ArrayList<String> correct=new ArrayList<String>();
-		int subNumber=0;
 		for (String r : reference) 
 		{
 			String rParts[]=r.split(",");

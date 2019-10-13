@@ -18,7 +18,7 @@ import com.ibm.icu.math.BigDecimal;
 
 public class MappingInfo {
 	private ArrayList<String> mappings; 
-	private ArrayList<ArrayList<String>> MinimcalConflictSet; 
+	//private ArrayList<ArrayList<String>> MinimcalConflictSet; 
 	OntModel ontology = ModelFactory.createOntologyModel();
 	
 	public MappingInfo(String MappingPath) throws IOException 
@@ -36,6 +36,7 @@ public class MappingInfo {
 				String line = lineTxt.trim(); 
 				mappings.add(line);
 			}
+			Alignment.close();
 		}
 		if(mappings.size()==0)
 		{
@@ -49,7 +50,7 @@ public class MappingInfo {
 		return mappings;
 	}
 	
-	public ArrayList<String> getReference(String alignmentFile)
+	public ArrayList<String> getReference(String alignmentFile) throws IOException
 	{
 		  ArrayList<String> references=new ArrayList<String>();  
 		    Model model = ModelFactory.createDefaultModel();
@@ -78,18 +79,19 @@ public class MappingInfo {
 				if(temp.getProperty(relation)!=null)
 				  Relation=temp.getProperty(relation).getObject().toString();
 				
-			BigDecimal   b   =   new   BigDecimal(Double.parseDouble(Confidence));  
-				Double confidence =   b.setScale(2,  BigDecimal.ROUND_HALF_UP).doubleValue();  
+			//BigDecimal   b   =   new   BigDecimal(Double.parseDouble(Confidence));  
+			//	Double confidence =   b.setScale(2,  BigDecimal.ROUND_HALF_UP).doubleValue();  
 							
 				if(Relation.equals("&gt;"))
 					continue;
 				//references.add(entity1+","+entity2+","+Relation);
 				references.add(entity1+","+entity2);
 			}
+			in.close();
 			return references;
 	}
 	
-	public ArrayList<String> getReference2(String alignmentFile)
+	public ArrayList<String> getReference2(String alignmentFile) throws IOException
 	{
 		  ArrayList<String> references=new ArrayList<String>();  
 		    Model model = ModelFactory.createDefaultModel();
@@ -119,14 +121,15 @@ public class MappingInfo {
 				if(temp.getProperty(relation)!=null)
 					  Relation=temp.getProperty(relation).getObject().toString();
 				
-				BigDecimal   b   =   new   BigDecimal(Double.parseDouble(Confidence)); 
-				Double confidence =   b.setScale(2,  BigDecimal.ROUND_HALF_UP).doubleValue();  
+				//BigDecimal   b   =   new   BigDecimal(Double.parseDouble(Confidence)); 
+				//Double confidence =   b.setScale(2,  BigDecimal.ROUND_HALF_UP).doubleValue();  
 				
 				if(Relation.equals("&gt;"))
 					continue;
 					//references.add(entity1+","+entity2+","+Relation);
 					references.add(entity1+","+entity2);
 			}
+			in.close();
 			return references;
 	}
 }

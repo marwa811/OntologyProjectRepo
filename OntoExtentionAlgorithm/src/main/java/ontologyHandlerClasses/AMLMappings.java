@@ -71,6 +71,14 @@ public class AMLMappings {
 			mappings.add(m);
 	}
 	
+	public boolean contains(AMLMapping m) {
+		// TODO Auto-generated method stub
+		if (mappings.contains(m))
+			return true;
+		else 
+			return false;
+	}
+	
 	public ArrayList<String> getMappingsAsRef() {
 		ArrayList<String> newMappings=new ArrayList<>();
 		Iterator<AMLMapping> mappingIterator = mappings.iterator();

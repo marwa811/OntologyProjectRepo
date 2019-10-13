@@ -1,11 +1,9 @@
 package ontologyHandlerClasses;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AxiomType;
@@ -24,11 +22,9 @@ import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
-import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.Node;
 import org.semanticweb.owlapi.reasoner.NodeSet;
@@ -53,7 +49,8 @@ public class OWLOntologyInformation {
 	OWLOntology onto;
 	String OntoID;
 	OWLDataFactory factory = manager.getOWLDataFactory();
-
+	StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+	//OWLReasoner reasoner = structFactory.createReasoner(onto);
 	
 	/**
 	 * A method to load an ontology using its file name. 
@@ -142,14 +139,14 @@ public class OWLOntologyInformation {
 	 */
 	public Set<OWLClass> getEquavilantClasses(OWLClass c) throws IOException {
 		Set<OWLClass> finalEquivalntClasses = new HashSet<OWLClass>();
-		Set<OWLEquivalentClassesAxiom> equavilantClasses = onto.getEquivalentClassesAxioms(c);
-		if (equavilantClasses.size() > 0) {
-			for (OWLEquivalentClassesAxiom equivalentAxiom : equavilantClasses) {
+		//Set<OWLEquivalentClassesAxiom> equavilantClasses = onto.getEquivalentClassesAxioms(c);
+		if ((onto.getEquivalentClassesAxioms(c)).size() > 0) {
+			for (OWLEquivalentClassesAxiom equivalentAxiom : onto.getEquivalentClassesAxioms(c)) {
 				for (OWLClass cls : equivalentAxiom.getClassesInSignature()) {
 					if (!cls.equals(c)) {
 						finalEquivalntClasses.add(cls);
 					}
-				}
+				}	
 			}
 		}
 		return finalEquivalntClasses;
@@ -162,7 +159,6 @@ public class OWLOntologyInformation {
 	 * @return Set of equivalent OWLClasses
 	 */
 	public Set<OWLClass> getInferedOWLEquivalentAxioms(OWLClass c) {
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
@@ -203,7 +199,7 @@ public class OWLOntologyInformation {
 	 * @return Set of disjoint OWLClasses
 	 */
 	public Set<OWLClass> getInferedOWLDisjointnessAxioms(OWLClass c) {
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		//StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> disjointClasses = new HashSet<OWLClass>();
@@ -226,15 +222,15 @@ public class OWLOntologyInformation {
 	 * @return Set of subclasses
 	 */
 	public Set<OWLClass> getSiblingClasses(OWLClass c) throws IOException {	
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		//StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> siblingclasses= new HashSet<OWLClass>();
-		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
-		for (OWLClass superclass : nodeclasses.getFlattened()) {
+		//NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
+		for (OWLClass superclass : reasoner.getSuperClasses((OWLClassExpression) c, true).getFlattened()) {
 			if (!superclass.isAnonymous() && !superclass.equals(c)) {
-				NodeSet<OWLClass> siblings = reasoner.getSubClasses((OWLClassExpression) superclass, true);
-				siblingclasses = siblings.getFlattened();
+			//	NodeSet<OWLClass> siblings = reasoner.getSubClasses((OWLClassExpression) superclass, true);
+				siblingclasses = reasoner.getSubClasses((OWLClassExpression) superclass, true).getFlattened();
 				for (OWLClass sibling : siblingclasses) {
 					if (!sibling.isAnonymous() && !sibling.equals(c)) 
 						siblingclasses.add(sibling);
@@ -251,12 +247,12 @@ public class OWLOntologyInformation {
 	 * @return Set of subclasses
 	 */
 	public Set<OWLClass> getSubClasses(OWLClass c) throws IOException {	
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		//StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 	reasoner.precomputeInferences();
 	Set<OWLClass> subClasses = new HashSet<OWLClass>();
-	NodeSet<OWLClass> nodeclasses = reasoner.getSubClasses((OWLClassExpression) c, true);
-	for (OWLClass subclass : nodeclasses.getFlattened()) {
+	//NodeSet<OWLClass> nodeclasses = reasoner.getSubClasses((OWLClassExpression) c, true);
+	for (OWLClass subclass : reasoner.getSubClasses((OWLClassExpression) c, true).getFlattened()) {
 		if (!subclass.isAnonymous() && !subclass.equals(c))
 			subClasses.add(subclass);
 		}
@@ -307,8 +303,8 @@ public class OWLOntologyInformation {
 	 */
 	public Set<OWLClass> getDomainClassForObjectProperty(OWLObjectProperty op) {
 		Set <OWLClass> domainClasses=new HashSet<OWLClass>();
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(onto);
+		//StructuralReasonerFactory factory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
 		NodeSet<OWLClass> tempClasses=reasoner.getObjectPropertyDomains(op, true);
@@ -327,12 +323,12 @@ public class OWLOntologyInformation {
 	 */
 	public Set<OWLClass> getRangeClassForObjectProperty(OWLObjectProperty op) {
 		Set <OWLClass> rangeClasses=new HashSet<OWLClass>();
-		StructuralReasonerFactory factory = new StructuralReasonerFactory();
-		OWLReasoner reasoner = factory.createReasoner(onto);
+		//StructuralReasonerFactory factory = new StructuralReasonerFactory();
+		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 
-		NodeSet<OWLClass> tempClasses=reasoner.getObjectPropertyRanges(op, true);
-		for (OWLClass rangeClass : tempClasses.getFlattened()) {
+		//NodeSet<OWLClass> tempClasses=reasoner.getObjectPropertyRanges(op, true);
+		for (OWLClass rangeClass : reasoner.getObjectPropertyRanges(op, true).getFlattened()) {
 			//System.out.println("Range class is: " +rangeClass.getIRI().getFragment());
 			rangeClasses.add(rangeClass);
 		}
@@ -387,12 +383,12 @@ public class OWLOntologyInformation {
 	 * @return Set of direct superclasses.
 	 */
 	public Set<OWLClass> getDirectSuperClass(OWLClass c) throws IOException {
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+		//StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> superclasses = new HashSet<OWLClass>();
-		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
-		for (OWLClass superclass : nodeclasses.getFlattened()) {
+//		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, true);
+		for (OWLClass superclass : reasoner.getSuperClasses((OWLClassExpression) c, true).getFlattened()) {
 			if (!superclass.isAnonymous() && !superclass.equals(c))
 				superclasses.add(superclass);
 			// System.out.println("SuperClass: " + OntologyParsing.getClassLabel(ontology,
@@ -409,12 +405,12 @@ public class OWLOntologyInformation {
 	 * @return Set of all superclasses.
 	 */
 	public Set<OWLClass> getAllSuperClasses(OWLClass c) throws IOException {
-		StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
+	//	StructuralReasonerFactory structFactory = new StructuralReasonerFactory();
 		OWLReasoner reasoner = structFactory.createReasoner(onto);
 		reasoner.precomputeInferences();
 		Set<OWLClass> superclasses = new HashSet<OWLClass>();
-		NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, false);
-		for (OWLClass superclass : nodeclasses.getFlattened()) {
+		//NodeSet<OWLClass> nodeclasses = reasoner.getSuperClasses((OWLClassExpression) c, false);
+		for (OWLClass superclass : reasoner.getSuperClasses((OWLClassExpression) c, false).getFlattened()) {
 			if (!superclass.isAnonymous() && !superclass.equals(c))
 				superclasses.add(superclass);
 			//System.out.println("SuperClass: " + getClassLabel(ontology, superclass));

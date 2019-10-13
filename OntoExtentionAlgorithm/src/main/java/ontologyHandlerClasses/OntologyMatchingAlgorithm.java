@@ -11,7 +11,6 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.apache.log4j.Logger;
 
@@ -31,6 +30,14 @@ public class OntologyMatchingAlgorithm {
 	
 	//a list of Final mappings output by the algorithm
 	AMLMappings Finalmappings=new AMLMappings();
+	
+	static OWLOntologyInformation sourceOntology=new OWLOntologyInformation();
+	static OWLOntologyInformation targetOntology=new OWLOntologyInformation();
+	
+	public OntologyMatchingAlgorithm(String sourceFile,String targetFile) throws OWLOntologyCreationException, OWLException {
+		sourceOntology.laodOntology(sourceFile);
+		targetOntology.laodOntology(targetFile);	
+	}
 
 	public Set<OWLClass> getSemanticSimilarClasses() {
 		return semanticSimilarClasses;
@@ -71,34 +78,34 @@ public class OntologyMatchingAlgorithm {
 	 * @throws OWLException 
 	 * @throws OWLOntologyCreationException 
 	 */
-	public void getSimilarclasses(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology,AMLMapping m, ArrayList<AMLMapping> mappings) throws IOException, OWLOntologyCreationException, OWLException {
+//	public void getSimilarclasses(OWLOntologyInformation sourceOntology, 
+	//		OWLOntologyInformation targetOntology,AMLMapping m, ArrayList<AMLMapping> mappings) throws IOException, OWLOntologyCreationException, OWLException {
+	public void getSimilarclasses(AMLMapping m, ArrayList<AMLMapping> mappings) throws IOException, OWLOntologyCreationException, OWLException {
 		// Condition 1: if the two classes have equivalent classes with mappings, then they can
 		// be semantically the same
-		getEquivalentClassesWithMappings(sourceOntology, targetOntology, m,mappings );
+		getEquivalentClassesWithMappings (m,mappings );
 		
 		// Condition 2: if two classes has subclasses with mappings, then they can be
 		// semantically the same
-		getSubClassesWithMappings(sourceOntology, targetOntology, m,mappings);
-		
+		getSubClassesWithMappings(m,mappings);
+				
 		// Condition 3: if two classes has direct superclass with mappings, then they can be
 		// semantically the same
-		getParentClassWithMappings(sourceOntology, targetOntology, m, mappings);
+		getParentClassWithMappings(m, mappings);
 		
 		// Condition 4: if two classes has common non-direct superclass with mappings, then they can be
 		// semantically the same
-		getNotDirectParentClassWithMappings(sourceOntology, targetOntology, m, mappings);
+		getNotDirectParentClassWithMappings( m, mappings);
 
 		// Condition 5: if two classes has common sibling classes with mappings, then they can be
 		// semantically the same
-		getSiblingClassesWithMappings(sourceOntology, targetOntology, m, mappings);
+		getSiblingClassesWithMappings( m, mappings);
 		
 		// Condition 6: if two classes has common object properties && has domain/range classes that have mappings 
 		// then they are semantically the same.
-		getCommonObjectProperties(sourceOntology, targetOntology, m, mappings);
-		
-		
-		}
+		getCommonObjectProperties(m, mappings);
+		mappings=null;
+	}
 
 	/**
 	 * A method to get equivalent classes that has a mapping between source class and target
@@ -110,8 +117,7 @@ public class OntologyMatchingAlgorithm {
 	 * @return The source class if there is a mapping between equivalent classes, else return null.
 	 */
 
-	public void getEquivalentClassesWithMappings(OWLOntologyInformation sourceOntology, 
-		OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings ) throws IOException {
+	public void getEquivalentClassesWithMappings(AMLMapping m, List<AMLMapping> mappings ) throws IOException {
 	
 	OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 	OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());	
@@ -123,6 +129,8 @@ public class OntologyMatchingAlgorithm {
 				System.out.println("Added for common Equivalent classes");
 				Finalmappings.add(m);
 			}
+	sourceClassEquavilantClasses=null;
+	targetClassEquavilantClasses=null;
 	}
 	/**
 	 * A method to get sub-classes that has mappings between source class and target class.
@@ -133,19 +141,25 @@ public class OntologyMatchingAlgorithm {
 	 * @param The source class, target class, and list of mappings.
 	 * @return The source class that has mappings between the input classes.
 	 */
-	public void getSubClassesWithMappings(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings ) throws IOException {
+	public void getSubClassesWithMappings(AMLMapping m, List<AMLMapping> mappings ) throws IOException {
 		OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 		OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());
 		Set<OWLClass> sourceClassSubClasses= sourceOntology.getSubClasses(sourceClass);
 		Set<OWLClass> targetClassSubClasses= targetOntology.getSubClasses(targetClass);
 		
-		for (OWLClass c1 : sourceClassSubClasses) 
-			for (OWLClass c2 : targetClassSubClasses) 
+		for (OWLClass c1 : sourceClassSubClasses) { 
+			if (Finalmappings.contains(m))
+				break;
+			
+			for (OWLClass c2 : targetClassSubClasses) {
 				if(testMappingExistence(c1, c2, mappings)) {
 					System.out.println("Added for common sub classes");
 					Finalmappings.add(m);
 				}
+			}
+		}
+		sourceClassSubClasses=null;
+		targetClassSubClasses=null;
 		}
 	
 	/**
@@ -158,8 +172,7 @@ public class OntologyMatchingAlgorithm {
 	 * @return The source class that have common (direct) parent with mappings with the target superclasses.
 	 */
 	
-	public void getParentClassWithMappings(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings ) throws IOException {
+	public void getParentClassWithMappings(AMLMapping m, List<AMLMapping> mappings ) throws IOException {
 		OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 		OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());
 		Set<OWLClass> sourceClassDirectSuperClass= sourceOntology.getDirectSuperClass(sourceClass);
@@ -176,6 +189,8 @@ public class OntologyMatchingAlgorithm {
 			}
 			}
 		}
+		sourceClassDirectSuperClass=null;
+		targetClassDirectSuperClass=null;
 	}
 
 	/**
@@ -188,14 +203,15 @@ public class OntologyMatchingAlgorithm {
 	 * @return The source class that have common any not direct parents with mappings with the target superclasses.
 	 */
 	
-	public void getNotDirectParentClassWithMappings(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings) throws IOException {
+	public void getNotDirectParentClassWithMappings(AMLMapping m, List<AMLMapping> mappings) throws IOException {
 		OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 		OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());
 		Set<OWLClass> sourceClassAllSuperClass= sourceOntology.getAllSuperClasses(sourceClass);
 		Set<OWLClass> targetClassAllSuperClass= targetOntology.getAllSuperClasses(targetClass);
 		
 		for (OWLClass c1 : sourceClassAllSuperClass) {
+			if (Finalmappings.contains(m))
+				break;
 			for (OWLClass c2 : targetClassAllSuperClass) {	
 			// if direct parent is "Thing" don't count it
 			if(c1.getIRI().getFragment() == "Thing" || c2.getIRI().getFragment() == "Thing")
@@ -206,6 +222,8 @@ public class OntologyMatchingAlgorithm {
 			}
 			}
 		}
+		sourceClassAllSuperClass=null;
+		targetClassAllSuperClass=null;
 	}
 
 	/**
@@ -218,14 +236,15 @@ public class OntologyMatchingAlgorithm {
 	 * @return The source class that have common siblings with mappings with the target superclasses.
 	 */
 	
-	public void getSiblingClassesWithMappings(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings) throws IOException {
+	public void getSiblingClassesWithMappings(AMLMapping m, List<AMLMapping> mappings) throws IOException {
 		OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 		OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());
 		Set<OWLClass> sourceClassSiblingClasses= sourceOntology.getSiblingClasses(sourceClass);
 		Set<OWLClass> targetClassSiblingClasses= targetOntology.getSiblingClasses(targetClass);
 		
 		for (OWLClass c1 : sourceClassSiblingClasses) {
+			if (Finalmappings.contains(m))
+				break;
 			for (OWLClass c2 : targetClassSiblingClasses) {	
 			// if sibling class is "Thing" don't count it
 			if(c1.getIRI().getFragment() == "Thing" || c2.getIRI().getFragment() == "Thing")
@@ -236,9 +255,11 @@ public class OntologyMatchingAlgorithm {
 			if(testMappingExistence(c1, c2, mappings)) {
 				System.out.println("Added for common sibling classes");
 				Finalmappings.add(m);
-			}
+				}
 			}
 		}
+		sourceClassSiblingClasses=null;
+		targetClassSiblingClasses=null;
 	}
 
 	/**
@@ -248,8 +269,7 @@ public class OntologyMatchingAlgorithm {
 	 * @param The source class , target class, and list of mappings.
 	 * @return The source class
 	 */
-	public void getCommonObjectProperties(OWLOntologyInformation sourceOntology, 
-			OWLOntologyInformation targetOntology, AMLMapping m, List<AMLMapping> mappings) throws IOException {
+	public void getCommonObjectProperties(AMLMapping m, List<AMLMapping> mappings) throws IOException {
 		OWLClass sourceClass=sourceOntology.getOWLClassfromIRI(m.getSourceURI());
 		OWLClass targetClass = targetOntology.getOWLClassfromIRI(m.getTargetURI());
 		// get all object properties connected to the source class from the source ontology

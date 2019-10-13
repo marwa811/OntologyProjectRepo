@@ -22,7 +22,7 @@ public class AMLMapping {
 		this.targetName=targetName;
 		this.similarityScore=similarityScore;
 	}
-	
+
 	public int getMappingId() {
 		return mappingId;
 	}
