@@ -30,6 +30,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Ontology matching tools/AML_v3.1/AML_v3.1/AgreementMakerLight.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_144"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
