@@ -35,8 +35,8 @@ public class MainClass {
 		
 		//String refPath="biodiv/envo-sweet.rdf";
 		
-		String filename1 = "conference/ekaw.owl";
-		String filename2 = "conference/sigkdd.owl";
+		String filename1 = "conference/cmt.owl";
+		String filename2 = "conference/conference.owl";
 		
 		/*OWLOntologyInformation sourceOntology=new OWLOntologyInformation();
 		OWLOntologyInformation targetOntology=new OWLOntologyInformation();

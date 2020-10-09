@@ -27,7 +27,7 @@ public class AMLMappings {
 		aml.matchAuto();
 		log.info("AML made the matching step between the two ontologies...");
 		
-		//If there exist AML mappings but them in AMLMappings object (arraylist)
+		//If there exist AML mappings put them in AMLMappings object (arraylist)
 		if(aml.getAlignment().size() > 0) { 
 			int id=1;
 			System.out.println("AML mappings are: "+ aml.getAlignment().size());

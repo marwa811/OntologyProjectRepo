@@ -31,5 +31,23 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Ontology matching tools/AML_v3.1/AML_v3.1/AgreementMakerLight.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_144"/>
+	<classpathentry kind="lib" path="C:/Users/marwa/.m2/repository/net/sourceforge/owlapi/owlapi-apibinding/3.4.3/owlapi-apibinding-3.4.3.jar" sourcepath="C:/Users/marwa/.m2/repository/net/sourceforge/owlapi/owlapi-apibinding/3.4.3/owlapi-apibinding-3.4.3-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="net.sourceforge.owlapi"/>
+			<attribute name="maven.artifactId" value="owlapi-apibinding"/>
+			<attribute name="maven.version" value="3.4.3"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/marwa/.m2/repository/net/sourceforge/owlapi/owlapi-api/3.4.3/owlapi-api-3.4.3.jar" sourcepath="C:/Users/marwa/.m2/repository/net/sourceforge/owlapi/owlapi-api/3.4.3/owlapi-api-3.4.3-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="net.sourceforge.owlapi"/>
+			<attribute name="maven.artifactId" value="owlapi-api"/>
+			<attribute name="maven.version" value="3.4.3"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
