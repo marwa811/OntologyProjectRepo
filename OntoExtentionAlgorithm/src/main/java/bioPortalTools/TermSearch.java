@@ -42,11 +42,16 @@ public class TermSearch {
         	if(result.get("obsolete").asText()=="false"){   
     	
             TermSearchResultInformation searchResultItem=new TermSearchResultInformation();	 
-            
+            ArrayList<String> ontologyDomains=new ArrayList<String>();
             searchResultItem.setOntologyId(result.get("links").get("ontology").asText());
             searchResultItem.setOntologyName(getName(result.get("links").get("ontology").asText()));
             searchResultItem.setAcronym(result.get("links").get("ontology").asText());
-            //populateOntologyLevelData(result.get("links").get("ontology").asText());
+            ontologyDomains=getOntologyDomain(result.get("links").get("ontology").asText());
+            if(ontologyDomains.size()>0)
+            {
+            	for(int i=0; i<ontologyDomains.size(); i++)
+            		searchResultItem.setOntologyDomains(ontologyDomains.get(i));
+            }
             searchResultItem.setClassId(result.get("@id").asText());        	            	
             if(result.has("prefLabel"))
             	searchResultItem.setPrefLabel(result.get("prefLabel").asText());
@@ -93,10 +98,21 @@ public class TermSearch {
     //------------------------------------------------------------
 	
     //to populate the OntologyLevel class with information about the ontology given its ontologyID
-    public void populateOntologyLevelData(String ontologyID) {
+    public static ArrayList<String> getOntologyDomain(String ontologyID) {
     	String acronym = ontologyID.substring(ontologyID.lastIndexOf('/')+1);
-    	JsonNode results = jsonToNode(get(REST_URL + "/ontologies/" +acronym )).get("collection");
-        
+    	JsonNode categories = jsonToNode(get(REST_URL + "/ontologies/" +acronym+"/categories"));
+    	ArrayList<String> categoryList = null;
+        if(categories.size()!=0) {
+        	categoryList = new ArrayList<String>();
+            for(JsonNode category : categories) {
+            	if (!category.get("name").isNull()) {
+            		categoryList.add(category.get("name").asText() +"\n"); 
+            	}
+            } 	  
+        }
+        else 
+        	System.out.println("No categories for this ontology"); 
+        return categoryList;
 	}
 	//-------------------------------------------------------------------
     
