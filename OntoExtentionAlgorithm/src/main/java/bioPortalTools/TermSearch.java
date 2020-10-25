@@ -97,7 +97,7 @@ public class TermSearch {
     }
     //------------------------------------------------------------
 	
-    //to populate the OntologyLevel class with information about the ontology given its ontologyID
+    //to retrieve/get ontology domains if exists 
     public static ArrayList<String> getOntologyDomain(String ontologyID) {
     	String acronym = ontologyID.substring(ontologyID.lastIndexOf('/')+1);
     	JsonNode categories = jsonToNode(get(REST_URL + "/ontologies/" +acronym+"/categories"));
