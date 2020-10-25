@@ -53,14 +53,18 @@ public class TermSearchResultInformation {
 	public void setOntologyName(String ontologyName) {
 		this.ontologyName=ontologyName;
 	}
+	public String getAcronym() {
+		return acronym;
+	}
+	public void setAcronym(String ontologyId) {
+		this.acronym = ontologyId.substring(ontologyId.lastIndexOf('/')+1);
+	}
 	public List<String> getOntologyDomains() {
 		return ontologyDomains;
 	}
-
-	public void setOntologyDomains(List<String> ontologyDomains) {
-		this.ontologyDomains = ontologyDomains;
+	public void setOntologyDomains(String ontologyDomain) {
+		 this.ontologyDomains.add(ontologyDomain);
 	}
-
 	public double getOntologyVisitsMean() {
 		return ontologyVisitsMean;
 	}
@@ -76,56 +80,42 @@ public class TermSearchResultInformation {
 	public void setOntologyProjects(int ontologyProjects) {
 		this.ontologyProjects = ontologyProjects;
 	}
-
 	public double getOntologyPopularity() {
 		return ontologyPopularity;
 	}
-
 	public void setOntologyPopularity(double ontologyPopularity) {
 		this.ontologyPopularity = ontologyPopularity;
 	}
-	
-	public void setClassDefination(List<String> classDefination) {
-		this.classDefination = classDefination;
-	}
-
-	public void setPrefLabel(String prefLabel) {
-		this.prefLabel = prefLabel;
-	}
-	public void setSynonyms(String synonym)
-     {
-		 this.synonyms.add(synonym);
-     }
-	public void setClassDefination(String classDef)
-    {
-		 this.classDefination.add(classDef);
-    }
-	public String getPrefLabel() {
-		return prefLabel;
-	}
-	public String getAcronym() {
-		return acronym;
-	}
-	public void setAcronym(String ontologyId) {
-		this.acronym = ontologyId.substring(ontologyId.lastIndexOf('/')+1);
-	}
-	public List<String> getClassDefination(){
-		return classDefination;
-	}
-	public List<String> getSynonyms(){
-		return synonyms;
-	}
+	///////
 	public String getClassId() {
 		return classId;
 	}
 	public void setClassId(String classId) {
 		this.classId = classId;
 	}
-	
+	public void setPrefLabel(String prefLabel) {
+		this.prefLabel = prefLabel;
+	}
+	public String getPrefLabel() {
+		return prefLabel;
+	}
+	public void setClassDefination(String classDef)
+    {
+		 this.classDefination.add(classDef);
+    }
+	public List<String> getClassDefination(){
+		return classDefination;
+	}
+	public void setSynonyms(String synonym)
+    {
+		 this.synonyms.add(synonym);
+    }
+	public List<String> getSynonyms(){
+		return synonyms;
+	}
 	public int getSubClassNumber() {
 		return subClassNumber;
 	}
-
 	public void setSubClassNumber(int subClassNumber) {
 		this.subClassNumber = subClassNumber;
 	}

@@ -44,9 +44,9 @@ public class TermSearch {
             TermSearchResultInformation searchResultItem=new TermSearchResultInformation();	 
             
             searchResultItem.setOntologyId(result.get("links").get("ontology").asText());
-            //populateOntologyLevelData(result.get("links").get("ontology").asText());
             searchResultItem.setOntologyName(getName(result.get("links").get("ontology").asText()));
             searchResultItem.setAcronym(result.get("links").get("ontology").asText());
+            //populateOntologyLevelData(result.get("links").get("ontology").asText());
             searchResultItem.setClassId(result.get("@id").asText());        	            	
             if(result.has("prefLabel"))
             	searchResultItem.setPrefLabel(result.get("prefLabel").asText());
